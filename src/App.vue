@@ -6,8 +6,8 @@
         :taskType="'todo'"
         @toggleEditor="isOpen = true"
         @deleteTask="deleteRecord"
+        @newTaskType="taskInType"
         @editTask="editRecord"
-        @newTaskType="test"
       />
 
       <task-list
@@ -16,7 +16,7 @@
         @toggleEditor="isOpen = true"
         @deleteTask="deleteRecord"
         @editTask="editRecord"
-        @newTaskType="test"
+        @newTaskType="taskInType"
       />
 
       <task-list
@@ -25,7 +25,7 @@
         @toggleEditor="isOpen = true"
         @deleteTask="deleteRecord"
         @editTask="editRecord"
-        @newTaskType="test"
+        @newTaskType="taskInType"
       />
 
       <editor
@@ -58,7 +58,7 @@ export default {
     index: null
   }),
   methods: {
-    test (data) {
+    taskInType (data) {
       this.newTask = {
         type: data
       }
@@ -66,6 +66,7 @@ export default {
     },
     createRecord (data) {
       this.taskList.push(data)
+      this.saveInStorage()
     },
     editRecord (data) {
       this.taskList.forEach((item, index, array) => {
@@ -80,6 +81,7 @@ export default {
       this.taskList.forEach((item, index, array) => {
         this.taskList.splice(this.index, 1, data)
       })
+      this.saveInStorage()
       this.isOpen = false
       this.editedTask = {}
     },
@@ -89,6 +91,16 @@ export default {
           this.taskList.splice(index, 1)
         }
       })
+      this.saveInStorage()
+    },
+    saveInStorage () {
+      const data = JSON.stringify(this.taskList)
+      localStorage.setItem('tasks', data)
+    }
+  },
+  mounted () {
+    if (localStorage.tasks) {
+      this.taskList = JSON.parse(localStorage.getItem('tasks'))
     }
   }
 }
