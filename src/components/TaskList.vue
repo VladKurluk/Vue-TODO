@@ -1,11 +1,13 @@
 <template>
   <div class="column">
-    <h1 class="title">{{ columnTitle }}<br />tasks</h1>
+    <h1 class="title has-text-centered">{{ columnTitle }}<br />tasks</h1>
     <button
       :class="color"
       class="button is-fullwidth"
       @click.prevent="newTask"
-    >Add new</button>
+      >
+        Add new task
+      </button>
     <div v-if="timesSorted.length">
       <div
         class="card"
@@ -23,7 +25,7 @@
           <p class="card-footer-item">
             <button
               class="button is-info is-rounded"
-              @click="$emit('editTask', task)"
+              @click="editTask(task)"
             >Edit</button>
           </p>
           <p class="card-footer-item">
@@ -35,11 +37,12 @@
         </footer>
       </div>
     </div>
-    <p v-else class="subtitle">No tasks yet</p>
+    <p v-else class="subtitle has-text-centered">No tasks yet</p>
   </div>
 </template>
 
 <script>
+import { bus } from '../main'
 export default {
   name: 'TaskList',
   data: () => ({}),
@@ -54,9 +57,11 @@ export default {
   },
   computed: {
     task () {
+      // Array filtering by type
       return this.list.filter(r => r.type === this.taskType)
     },
     timesSorted () {
+      // Array sorting by created time
       const tasks = this.task
       return tasks.sort((a, b) => b.time - a.time)
     },
@@ -69,7 +74,12 @@ export default {
   },
   methods: {
     newTask () {
-      this.$emit('newTaskType', this.taskType)
+      bus.$emit('typeRecord', this.taskType)
+      bus.$emit('openEditor')
+    },
+    editTask (data) {
+      bus.$emit('editRecord', data)
+      bus.$emit('openEditor')
     }
   }
 }

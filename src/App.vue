@@ -4,37 +4,26 @@
       <task-list
         :list="taskList"
         :taskType="'todo'"
-        @toggleEditor="isOpen = true"
         @deleteTask="deleteRecord"
-        @newTaskType="taskInType"
-        @editTask="editRecord"
       />
 
       <task-list
         :list="taskList"
         :taskType="'in progress'"
-        @toggleEditor="isOpen = true"
         @deleteTask="deleteRecord"
-        @editTask="editRecord"
-        @newTaskType="taskInType"
       />
 
       <task-list
         :list="taskList"
         :taskType="'done'"
-        @toggleEditor="isOpen = true"
         @deleteTask="deleteRecord"
-        @editTask="editRecord"
-        @newTaskType="taskInType"
       />
 
       <editor
-        :editedObj="editedTask"
-        :typeTask="newTask"
-        @createdTask="createRecord"
-        @toggleEditor="isOpen = false"
-        @update="updateRecord"
         v-model="isOpen"
+        @createdTask="createRecord"
+        @update="updateRecord"
+        @toggleEditor="isOpen = false"
       />
     </div>
   </div>
@@ -43,6 +32,7 @@
 <script>
 import TaskList from '@/components/TaskList'
 import Editor from '@/components/Editor'
+import { bus } from './main'
 
 export default {
   name: 'App',
@@ -52,30 +42,21 @@ export default {
   },
   data: () => ({
     taskList: [],
-    editedTask: null,
-    newTask: null,
     isOpen: false,
     index: null
   }),
   methods: {
-    taskInType (data) {
-      this.newTask = {
-        type: data
-      }
-      this.isOpen = true
-    },
     createRecord (data) {
       this.taskList.push(data)
       this.saveInStorage()
     },
-    editRecord (data) {
+    indexOfEditedRecord (data) {
+      // Save the index in the array for the record that is being edited
       this.taskList.forEach((item, index, array) => {
         if (item.time === data.time) {
           this.index = index
         }
       })
-      this.editedTask = data
-      this.isOpen = true
     },
     updateRecord (data) {
       this.taskList.forEach((item, index, array) => {
@@ -83,7 +64,6 @@ export default {
       })
       this.saveInStorage()
       this.isOpen = false
-      this.editedTask = {}
     },
     deleteRecord (val) {
       this.taskList.forEach((item, index, array) => {
@@ -102,17 +82,19 @@ export default {
     if (localStorage.tasks) {
       this.taskList = JSON.parse(localStorage.getItem('tasks'))
     }
+    bus.$on('openEditor', data => {
+      this.isOpen = true
+    })
+    bus.$on('editRecord', data => {
+      this.indexOfEditedRecord(data)
+    })
   }
 }
 </script>
 
 <style lang="scss">
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
+body {
+  background-color: #cecece;
+  min-height: 100vh;
 }
 </style>

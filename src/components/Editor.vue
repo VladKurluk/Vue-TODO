@@ -42,7 +42,7 @@
           </div>
         </div>
 
-        <div v-if="typeTask !== null && edited" class="field is-fullwidth">
+        <div v-if="edited" class="field is-fullwidth">
           <label class="label is-pulled-left">Task type</label>
           <div class="control">
             <div class="select">
@@ -59,7 +59,7 @@
           <div class="control">
             <div class="select">
               <select v-model="type">
-                <option>{{typeTask.type}}</option>
+                <option>{{type}}</option>
               </select>
             </div>
           </div>
@@ -90,6 +90,7 @@
 </template>
 
 <script>
+import { bus } from '../main'
 import { required, minLength } from 'vuelidate/lib/validators'
 
 export default {
@@ -100,30 +101,10 @@ export default {
     type: null,
     edited: false
   }),
-  props: ['value', 'editedObj', 'typeTask'],
+  props: ['value'],
   validations: {
     title: { required },
     body: { required, minLength: minLength(10) }
-  },
-  watch: {
-    editedObj (val) {
-      this.edited = true
-      this.title = val.title
-      this.body = val.body
-      this.type = val.type
-      this.time = Date.now()
-    },
-    typeTask (val) {
-      this.$v.$reset()
-      if (val.title === undefined) {
-        this.edited = false
-        this.type = val.type
-      } else {
-        this.type = null
-      }
-      this.title = ''
-      this.body = ''
-    }
   },
   methods: {
     createTask () {
@@ -166,12 +147,27 @@ export default {
     },
     clearForm () {
       this.$v.$reset()
-      // Clear form
       this.title = ''
       this.body = ''
       this.type = null
       this.edited = false
     }
+  },
+  created () {
+    bus.$on('editRecord', data => {
+      this.clearForm()
+      this.title = data.title
+      this.body = data.body
+      this.type = data.type
+      this.time = data.time
+      this.edited = true
+    })
+
+    bus.$on('typeRecord', data => {
+      this.clearForm()
+      this.edited = false
+      this.type = data
+    })
   }
 }
 </script>

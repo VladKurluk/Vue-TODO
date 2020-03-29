@@ -8,6 +8,8 @@ Vue.config.productionTip = false
 
 Vue.use(Vuelidate)
 
+export const bus = new Vue()
+
 new Vue({
   render: h => h(App)
 }).$mount('#app')
