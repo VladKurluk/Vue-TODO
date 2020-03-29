@@ -94,7 +94,7 @@ export default {
 
 <style lang="scss">
 body {
-  background-color: #cecece;
+  background-color: hsl(0, 0%, 96%);
   min-height: 100vh;
 }
 </style>
